@@ -10,7 +10,7 @@ set -x
 # bash examples/train/algorithms/clip_cov_kl_cov/run_clip_cov.sh
 
 DATA_DIR="$HOME/data/gsm8k"
-NUM_GPUS=4
+NUM_GPUS=1
 LOGGER="wandb"  # change to "console" to print to stdout
 
 # Configure Clip-Cov parameters
@@ -38,10 +38,10 @@ uv run --isolated --extra fsdp -m skyrl.train.entrypoints.main_base \
   trainer.eval_before_train=true \
   trainer.eval_interval=5 \
   trainer.update_epochs_per_batch=1 \
-  trainer.train_batch_size=1024 \
-  trainer.policy_mini_batch_size=256 \
-  trainer.micro_forward_batch_size_per_gpu=64 \
-  trainer.micro_train_batch_size_per_gpu=64 \
+  trainer.train_batch_size=128 \
+  trainer.policy_mini_batch_size=128 \
+  trainer.micro_forward_batch_size_per_gpu=16 \
+  trainer.micro_train_batch_size_per_gpu=16 \
   trainer.ckpt_interval=10 \
   trainer.max_prompt_length=512 \
   generator.sampling_params.max_generate_length=1024 \
@@ -57,7 +57,7 @@ uv run --isolated --extra fsdp -m skyrl.train.entrypoints.main_base \
   generator.n_samples_per_prompt=5 \
   generator.inference_engine.gpu_memory_utilization=0.8 \
   trainer.logger="$LOGGER" \
-  trainer.project_name="clip_cov_gsm8k" \
+  trainer.project_name="rl_replication" \
   trainer.run_name="clip_cov_gsm8k_test" \
   trainer.resume_mode=null \
   trainer.ckpt_path="$HOME/ckpts/clip_cov_gsm8k_1.5B_ckpt" \

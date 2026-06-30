@@ -9,4 +9,5 @@ bash examples/train/gsm8k/run_gsm8k.sh \
   trainer.algorithm.sapo.tau_neg=1.05 \
   trainer.algorithm.loss_reduction="sequence_mean" \
   trainer.run_name="sapo_gsm8k" \
+  trainer.project_name="rl_replication" \
   "$@"
