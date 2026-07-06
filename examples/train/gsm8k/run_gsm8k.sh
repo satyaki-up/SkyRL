@@ -28,10 +28,10 @@ uv run --isolated --extra fsdp -m skyrl.train.entrypoints.main_base \
   trainer.placement.ref_num_gpus_per_node=$NUM_GPUS \
   generator.inference_engine.num_engines=$NUM_GPUS \
   generator.inference_engine.tensor_parallel_size=1 \
-  trainer.epochs=20 \
+  trainer.epochs=2 \
   trainer.eval_batch_size=1024 \
   trainer.eval_before_train=true \
-  trainer.eval_interval=5 \
+  trainer.eval_interval=10 \
   trainer.update_epochs_per_batch=1 \
   trainer.train_batch_size=128 \
   trainer.policy_mini_batch_size=128 \
@@ -49,10 +49,11 @@ uv run --isolated --extra fsdp -m skyrl.train.entrypoints.main_base \
   generator.batched=true \
   environment.env_class=gsm8k \
   generator.n_samples_per_prompt=5 \
+  generator.eval_n_samples_per_prompt=4 \
   generator.inference_engine.gpu_memory_utilization=0.8 \
   trainer.logger="$LOGGER" \
-  trainer.project_name="gsm8k" \
-  trainer.run_name="gsm8k_test" \
+  trainer.project_name="coverage" \
+  trainer.run_name="ppo_eval_4" \
   trainer.resume_mode=null \
   trainer.log_path="/tmp/skyrl-logs" \
   trainer.ckpt_path="$HOME/ckpts/gsm8k_1.5B_ckpt" \
