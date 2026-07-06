@@ -17,12 +17,21 @@ dependencies = [
     "rich>=14.1.0",
     "safetensors>=0.6.2",
     "tokenizers>=0.21.2",
-    "transformers>=5.6.1,<=5.8.0",
+    "transformers",
     "typer>=0.17.4",
     # "wandb>=0.22.0",
     "peft==0.18.1",
     "hf_transfer",
     "cloudpathlib>=0.23.0",
+    "cloudpickle",
+    "ray>=2.51.1",
+    "jaxtyping>=0.3.11",
+    "loguru>=0.7.3",
+    "omegaconf>=2.3.1",
+    "skyrl-gym>=0.3.0",
+    "torchdata>=0.11.0",
+    "fastapi>=0.136.3",
+    "uvicorn",
 ]
 
 [project.optional-dependencies]
@@ -241,7 +250,7 @@ no-build-isolation-package = [
 override-dependencies = [
     "nvidia-resiliency-ext; sys_platform == 'never'",
     "transformer-engine[pytorch]==2.11.0; sys_platform == 'linux'",
-    "transformers>=5.6.1,<=5.8.0; sys_platform == 'linux'",
+    "transformers>=5.6.1,<=5.8.0",
     "megatron-core>=0.16.0; sys_platform == 'linux' and python_version >= '3.12'",
     "ml_dtypes>=0.5.0; sys_platform == 'linux'",
     "transformer-engine-cu13; sys_platform == 'never'",
@@ -388,4 +397,3 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["skyrl", "skyrl_gym"]
-

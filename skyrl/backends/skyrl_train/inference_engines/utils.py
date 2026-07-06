@@ -2,17 +2,16 @@ import hashlib
 import os
 import random
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import ray
 from omegaconf import DictConfig, ListConfig
 from ray.util.placement_group import PlacementGroupSchedulingStrategy
 
-from skyrl.backends.skyrl_train.inference_engines.inference_engine_client_http_endpoint import (
-    ErrorInfo,
-    ErrorResponse,
-)
 from skyrl.train.config import SamplingParams
+
+if TYPE_CHECKING:
+    from skyrl.backends.skyrl_train.inference_engines.inference_engine_client_http_endpoint import ErrorResponse
 
 
 def _alloc_conf_with_expandable_segments() -> str:
@@ -159,7 +158,7 @@ def route_prompts_to_engines(
 def postprocess_completion_request(
     prompt: Union[List[int], List[List[int]], List[str], str],
     session_id_value: Optional[Union[List[int], List[str], int, str]],
-) -> tuple[Optional[Union[List[int], List[str], ErrorResponse]], Union[List[List[int]], List[str]]]:
+) -> tuple[Optional[Union[List[int], List[str], "ErrorResponse"]], Union[List[List[int]], List[str]]]:
     """
     Postprocess the session_id value and raise error if invalid.
 
@@ -190,6 +189,11 @@ def postprocess_completion_request(
         session_id_value = [session_id_value]
 
     if len(session_id_value) != len(prompt):
+        from skyrl.backends.skyrl_train.inference_engines.inference_engine_client_http_endpoint import (
+            ErrorInfo,
+            ErrorResponse,
+        )
+
         return (
             ErrorResponse(
                 error=ErrorInfo(

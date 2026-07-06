@@ -35,7 +35,7 @@ uv run --isolated --extra fsdp -m skyrl.train.entrypoints.main_base \
   trainer.eval_before_train=true \
   trainer.eval_interval=5 \
   trainer.update_epochs_per_batch=1 \
-  trainer.train_batch_size=1024 \
+  trainer.train_batch_size=128 \
   trainer.policy_mini_batch_size=128 \
   trainer.micro_forward_batch_size_per_gpu=16 \
   trainer.micro_train_batch_size_per_gpu=16 \

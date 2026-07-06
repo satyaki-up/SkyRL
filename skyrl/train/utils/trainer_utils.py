@@ -4,7 +4,7 @@ import os
 from collections import defaultdict
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypedDict, Union
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Tuple, TypedDict, Union
 
 import numpy as np
 import ray
@@ -15,7 +15,6 @@ from torchdata.stateful_dataloader import StatefulDataLoader
 from transformers import AutoTokenizer
 
 from skyrl.backends.skyrl_train.utils.io import io
-from skyrl.backends.skyrl_train.workers.worker import PPORayActorGroup
 from skyrl.backends.skyrl_train.workers.worker_utils import (
     MINIBATCH_ROLLOUT_LOGPROB_DIFF_MEAN_KEY,
     MINIBATCH_ROLLOUT_LOGPROB_DIFF_SQ_MEAN_KEY,
@@ -28,6 +27,9 @@ from skyrl.train.generators.utils import (
     concatenate_generator_outputs,
     get_metrics_from_generator_output,
 )
+
+if TYPE_CHECKING:
+    from skyrl.backends.skyrl_train.workers.worker import PPORayActorGroup
 
 BasicType = Union[int, float, str, bool, type(None)]
 
@@ -65,7 +67,9 @@ class ResumeMode(Enum):
 
 
 def get_node_ids(
-    policy_model: PPORayActorGroup, critic_model: Optional[PPORayActorGroup], ref_model: Optional[PPORayActorGroup]
+    policy_model: "PPORayActorGroup",
+    critic_model: Optional["PPORayActorGroup"],
+    ref_model: Optional["PPORayActorGroup"],
 ) -> List[str]:
     """Get the node ids of the policy, critic, and ref models.
 

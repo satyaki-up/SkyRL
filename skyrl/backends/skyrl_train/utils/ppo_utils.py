@@ -18,7 +18,6 @@
 
 from collections import defaultdict
 from enum import StrEnum
-from functools import wraps
 from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
@@ -503,12 +502,8 @@ def register_advantage_estimator(name: Union[str, AdvantageEstimator]):
     """Decorator to register an advantage estimator function."""
 
     def decorator(func: Callable):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-
-        AdvantageEstimatorRegistry.register(name, wrapper)
-        return wrapper
+        AdvantageEstimatorRegistry.register(name, func)
+        return func
 
     return decorator
 
@@ -517,12 +512,8 @@ def register_policy_loss(name: Union[str, PolicyLossType]):
     """Decorator to register a policy loss function."""
 
     def decorator(func: Callable):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-
-        PolicyLossRegistry.register(name, wrapper)
-        return wrapper
+        PolicyLossRegistry.register(name, func)
+        return func
 
     return decorator
 

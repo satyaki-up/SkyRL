@@ -2,25 +2,20 @@ import copy
 import json
 import logging
 from argparse import Namespace
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from skyrl.backends.skyrl_train.inference_servers.new_inference_worker_wrap import (
-    VLLM_NEW_INFERENCE_WORKER_EXTENSION_CLS,
-)
-from skyrl.backends.skyrl_train.inference_servers.remote_inference_client import (
-    SKYRL_LORA_ADAPTER_NAME,
-)
-from skyrl.backends.skyrl_train.weight_sync import get_transfer_strategy
 from skyrl.train.config import (
     InferenceEngineConfig,
-    SkyRLTrainConfig,
     get_config_as_dict,
 )
+
+if TYPE_CHECKING:
+    from skyrl.train.config import SkyRLTrainConfig
 
 logger = logging.getLogger(__name__)
 
 
-def _uses_lora_weight_sync(cfg: SkyRLTrainConfig) -> bool:
+def _uses_lora_weight_sync(cfg: "SkyRLTrainConfig") -> bool:
     """Return True when the trainer syncs LoRA adapters (not merged weights).
 
     FSDP always syncs LoRA adapters when ``lora.rank > 0``.
@@ -34,7 +29,7 @@ def _uses_lora_weight_sync(cfg: SkyRLTrainConfig) -> bool:
     return True
 
 
-def resolve_policy_model_name(cfg: SkyRLTrainConfig) -> str:
+def resolve_policy_model_name(cfg: "SkyRLTrainConfig") -> str:
     """Return the model identifier the inference engine knows the policy by.
 
     Mirrors the weight-sync code path: when the worker registers a LoRA
@@ -51,13 +46,21 @@ def resolve_policy_model_name(cfg: SkyRLTrainConfig) -> str:
     ``render_chat_completion`` request against the current policy.
     """
     if _uses_lora_weight_sync(cfg):
+        from skyrl.backends.skyrl_train.inference_servers.remote_inference_client import (
+            SKYRL_LORA_ADAPTER_NAME,
+        )
+
         return SKYRL_LORA_ADAPTER_NAME
     return cfg.trainer.policy.model.path
 
 
 # TODO: Add a test for validation
-def build_vllm_cli_args(cfg: SkyRLTrainConfig) -> Namespace:
+def build_vllm_cli_args(cfg: "SkyRLTrainConfig") -> Namespace:
     """Build CLI args for vLLM server from config."""
+    from skyrl.backends.skyrl_train.inference_servers.new_inference_worker_wrap import (
+        VLLM_NEW_INFERENCE_WORKER_EXTENSION_CLS,
+    )
+    from skyrl.backends.skyrl_train.weight_sync import get_transfer_strategy
     from vllm import AsyncEngineArgs
     from vllm.config import WeightTransferConfig
     from vllm.entrypoints.openai.cli_args import FrontendArgs
