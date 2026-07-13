@@ -2,13 +2,12 @@
 
 ## Download Dataset 
 ```
-pip install gdown
+uv add gdown
 
-python examples/livecodebench/lcb_download.py --local_dir ~/data/lcb/download
+uv run python examples/train/livecodebench/lcb_download.py --local_dir ~/data/lcb/download
 
-python examples/livecodebench/lcb_dataset.py --dataset_dir ~/data/lcb/download --local_dir ~/data/lcb/
+uv run python examples/train/livecodebench/lcb_dataset.py --dataset_dir ~/data/lcb/download --local_dir ~/data/lcb/
 ```
 
 ## Note
-* Read from the json file instead of parquet 
-* Need to truncate the json file otherwise it is too large with normal `datasets.load_dataset()`, need to use streaming or load with PyArrow directly 
+* Use the generated JSONL files for training and evaluation. A single large JSON array can be too large for normal `datasets.load_dataset("json")` and may hit PyArrow int32 block-size limits.

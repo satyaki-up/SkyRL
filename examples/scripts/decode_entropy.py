@@ -7,7 +7,7 @@ from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
-MODEL_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
+MODEL_NAME = "Qwen/Qwen3-1.7B"
 
 # Example:
 # uv run python examples/scripts/decode_entropy.py
@@ -24,7 +24,7 @@ def entropy_from_logits(logits_V: torch.Tensor) -> torch.Tensor:
     return -(probs_V * log_probs_V).sum(dim=-1)
 
 
-def print_entropy_histogram(entropy_L: list[float], bins: int = 40, width: int = 60) -> None:
+def print_entropy_histogram(entropy_L: list[float], token_text_L: list[str], bins: int = 40, num_samples: int = 5) -> None:
     if not entropy_L:
         print("entropy histogram: no generated tokens")
         return
@@ -33,23 +33,25 @@ def print_entropy_histogram(entropy_L: list[float], bins: int = 40, width: int =
     max_entropy = max(entropy_L)
     if min_entropy == max_entropy:
         print("entropy histogram:")
-        print(f"[{min_entropy:.4f}, {max_entropy:.4f}] {'#' * min(len(entropy_L), width)} {len(entropy_L)}")
+        samples = ", ".join(json.dumps(token) for token in token_text_L[:num_samples])
+        print(f"[{min_entropy:.4f}, {max_entropy:.4f}] {len(entropy_L)} {samples}")
         return
 
     bin_width = (max_entropy - min_entropy) / bins
     counts = [0] * bins
-    for entropy in entropy_L:
+    token_samples_by_bin = [[] for _ in range(bins)]
+    for entropy, token_text in zip(entropy_L, token_text_L):
         bin_index = min(int((entropy - min_entropy) / bin_width), bins - 1)
         counts[bin_index] += 1
+        if len(token_samples_by_bin[bin_index]) < num_samples:
+            token_samples_by_bin[bin_index].append(token_text)
 
-    max_count = max(counts)
     print("entropy histogram:")
     for bin_index, count in enumerate(counts):
         start = min_entropy + bin_index * bin_width
         end = start + bin_width
-        bar_length = round((count / max_count) * width) if count else 0
-        bar = "#" * bar_length
-        print(f"[{start:7.4f}, {end:7.4f}) {bar} {count}")
+        samples = ", ".join(json.dumps(token) for token in token_samples_by_bin[bin_index])
+        print(f"[{start:7.4f}, {end:7.4f}) {count} {samples}")
 
 
 def build_prompt(tokenizer: AutoTokenizer, question: str) -> str:
@@ -116,14 +118,16 @@ def main() -> None:
 
     generated_token_id_L = output.sequences[0, input_token_id_BL.shape[-1] :]
     entropy_L = []
+    token_text_L = []
     for step, (token_id, logits_BV) in enumerate(zip(generated_token_id_L, output.scores), start=1):
         logits_V = logits_BV[0].float()
         entropy = entropy_from_logits(logits_V).item()
         entropy_L.append(entropy)
         token = tokenizer.decode([token_id.item()])
+        token_text_L.append(token)
         # print(f"{step:04d}\ttoken={json.dumps(token)}\tentropy={entropy:.6f}")
 
-    print_entropy_histogram(entropy_L)
+    print_entropy_histogram(entropy_L, token_text_L)
 
 
 if __name__ == "__main__":

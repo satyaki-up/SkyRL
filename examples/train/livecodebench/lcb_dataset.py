@@ -148,14 +148,14 @@ def process_dataset(dataset_name: str, split: str, dataset_dir: str, local_dir: 
     # Save individual dataset files
     df = pd.DataFrame(processed_data)
     parquet_path = os.path.join(local_dir, f"{split}_{dataset_name}.parquet")
-    json_path = os.path.join(local_dir, f"{split}_{dataset_name}.json")
+    jsonl_path = os.path.join(local_dir, f"{split}_{dataset_name}.jsonl")
 
     print(f"Writing {len(df)} rows to {split}_{dataset_name}.parquet")
     df.to_parquet(parquet_path)
 
     if split == "test":
-        print(f"Writing {len(df)} rows to {split}_{dataset_name}.json")
-        df.to_json(json_path, orient="records")
+        print(f"Writing {len(df)} rows to {split}_{dataset_name}.jsonl")
+        df.to_json(jsonl_path, orient="records", lines=True)
 
     return processed_data
 
@@ -196,5 +196,5 @@ if __name__ == "__main__":
     # Save combined train dataset
     all_train_df = pd.DataFrame(train_data)
     all_train_df.to_parquet(os.path.join(local_dir, "deepcoder_train.parquet"))
-    all_train_df.to_json(os.path.join(local_dir, "deepcoder_train.json"), orient="records")
-    print(f"Writing {len(all_train_df)} rows to deepcoder_train.parquet and deepcoder_train.json")
+    all_train_df.to_json(os.path.join(local_dir, "deepcoder_train.jsonl"), orient="records", lines=True)
+    print(f"Writing {len(all_train_df)} rows to deepcoder_train.parquet and deepcoder_train.jsonl")

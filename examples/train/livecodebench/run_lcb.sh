@@ -5,8 +5,8 @@ set -x
 # bash examples/train/livecodebench/run_lcb.sh
 
 DATA_DIR="$HOME/data/lcb"
-train_data="['${DATA_DIR}/deepcoder_train.json']"
-val_data="['${DATA_DIR}/test_livecodebench.json']"
+train_data="['${DATA_DIR}/deepcoder_train.jsonl']"
+val_data="['${DATA_DIR}/test_livecodebench.jsonl']"
 
 # NOTE (sumanthrh): micro_train_batch_size and micro_forward_batch_size can be tuned
 uv run --isolated --frozen --extra fsdp -m skyrl.train.entrypoints.main_base \
@@ -43,8 +43,8 @@ uv run --isolated --frozen --extra fsdp -m skyrl.train.entrypoints.main_base \
   generator.sampling_params.temperature=0.6 \
   generator.sampling_params.top_p=0.95 \
   trainer.logger="wandb" \
-  trainer.project_name="skyrl" \
-  trainer.run_name="skyrlcode_test" \
+  trainer.project_name="lcb" \
+  trainer.run_name="lcb_grpo" \
   trainer.resume_mode=null \
   trainer.ckpt_path="$HOME/ckpts/lcb_3B_ckpt" \
   trainer.eval_batch_size=1024 \
