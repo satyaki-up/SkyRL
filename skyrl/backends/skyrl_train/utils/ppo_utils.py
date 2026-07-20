@@ -122,6 +122,12 @@ def compute_approx_kl(
         log_m = torch.logaddexp(log_probs, log_probs_base) - np.log(2.0)
         q_over_p = safe_exp_delta(log_probs_base - log_probs, clip=20.0, out_dtype=log_probs.dtype)
         kld = 0.5 * (log_probs - log_m) + 0.5 * q_over_p * (log_probs_base - log_m)
+    elif kl_estimator_type == "tv":
+        # Sampled total variation estimator:
+        # TV(p, q) = 0.5 * sum_x |p(x) - q(x)|
+        #          = 0.5 * E_p[|1 - q(x) / p(x)|].
+        q_over_p = safe_exp_delta(log_probs_base - log_probs, clip=20.0, out_dtype=log_probs.dtype)
+        kld = 0.5 * (1.0 - q_over_p).abs()
     else:
         raise ValueError(f"Invalid KL estimator type: {kl_estimator_type}")
 
