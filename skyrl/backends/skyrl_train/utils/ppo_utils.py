@@ -114,6 +114,14 @@ def compute_approx_kl(
         ratio = torch.exp(kl)
         kld = (ratio - kl - 1).contiguous()
         kld = torch.clamp(kld, min=-10, max=10)
+    elif kl_estimator_type == "js":
+        # Sampled Jensen-Shannon estimator. For p=policy and q=base/ref:
+        # JS(p||q) = 0.5 E_p[log p - log m] + 0.5 E_q[log q - log m],
+        # m = 0.5 * (p + q). Rewriting the E_q term under samples from p gives
+        # 0.5 * (log p - log m) + 0.5 * (q / p) * (log q - log m).
+        log_m = torch.logaddexp(log_probs, log_probs_base) - np.log(2.0)
+        q_over_p = safe_exp_delta(log_probs_base - log_probs, clip=20.0, out_dtype=log_probs.dtype)
+        kld = 0.5 * (log_probs - log_m) + 0.5 * q_over_p * (log_probs_base - log_m)
     else:
         raise ValueError(f"Invalid KL estimator type: {kl_estimator_type}")
 

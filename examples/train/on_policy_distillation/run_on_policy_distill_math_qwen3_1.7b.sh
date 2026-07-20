@@ -12,7 +12,7 @@ LOGGER=wandb
 
 # On Policy Distillation args
 # set this to the huggingface/local path of your teacher model
-TEACHER_MODEL="$HOME/ckpts/dapo_qwen3_4b_base/global_step_90/"
+TEACHER_MODEL="Qwen/Qwen3-4B"
 STUDENT_MODEL="Qwen/Qwen3-1.7B-Base"
 ADVANTAGE_ESTIMATOR="no_op"
 POLICY_LOSS="importance_sampling"
@@ -33,7 +33,7 @@ EVAL_TOP_P=0.7
 TRAIN_BATCH_SIZE=512
 MINI_BATCH_SIZE=512
 N_SAMPLES_PER_PROMPT=16
-EVAL_N_SAMPLES_PER_PROMPT=32
+EVAL_N_SAMPLES_PER_PROMPT=1
 ENFORCE_EAGER=false
 LR=1e-5
 

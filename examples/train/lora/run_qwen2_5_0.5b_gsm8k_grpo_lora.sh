@@ -10,11 +10,11 @@ set -x
 
 # NOTE (sumanthrh): `micro_train_batch_size_per_gpu` and `micro_forward_batch_size_per_gpu` can be tuned
 
-DATA_DIR="$HOME/data/gsm8k"
-NUM_GPUS=4
-LOGGER="wandb"  # change to "console" to print to stdout
+: "${DATA_DIR:="$HOME/data/gsm8k"}"
+: "${NUM_GPUS:=1}"
+: "${LOGGER:=wandb}" # change to "console" to print to stdout
 
-INFERENCE_BACKEND="vllm"
+: "${INFERENCE_BACKEND:=vllm}"
 
 
 uv run --isolated --extra fsdp -m skyrl.train.entrypoints.main_base \
@@ -23,7 +23,7 @@ uv run --isolated --extra fsdp -m skyrl.train.entrypoints.main_base \
   trainer.algorithm.advantage_estimator="grpo" \
   trainer.policy.model.path="Qwen/Qwen2.5-0.5B-Instruct" \
   trainer.placement.colocate_all=true \
-  trainer.policy.model.lora.rank=32 \
+  trainer.policy.model.lora.rank=1 \
   trainer.policy.model.lora.alpha=32 \
   trainer.strategy=fsdp \
   trainer.placement.policy_num_gpus_per_node=$NUM_GPUS \
@@ -35,10 +35,10 @@ uv run --isolated --extra fsdp -m skyrl.train.entrypoints.main_base \
   trainer.eval_before_train=false \
   trainer.eval_interval=5 \
   trainer.update_epochs_per_batch=1 \
-  trainer.train_batch_size=1024 \
-  trainer.policy_mini_batch_size=256 \
-  trainer.micro_forward_batch_size_per_gpu=64 \
-  trainer.micro_train_batch_size_per_gpu=64 \
+  trainer.train_batch_size=128 \
+  trainer.policy_mini_batch_size=128 \
+  trainer.micro_forward_batch_size_per_gpu=16 \
+  trainer.micro_train_batch_size_per_gpu=16 \
   trainer.ckpt_interval=10 \
   trainer.max_prompt_length=512 \
   generator.sampling_params.max_generate_length=1024 \
@@ -50,11 +50,10 @@ uv run --isolated --extra fsdp -m skyrl.train.entrypoints.main_base \
   generator.inference_engine.async_engine=true \
   generator.batched=true \
   environment.env_class=gsm8k \
-  generator.n_samples_per_prompt=5 \
   generator.inference_engine.gpu_memory_utilization=0.8 \
   trainer.logger="$LOGGER" \
-  trainer.project_name="gsm8k_0.5b_lora" \
-  trainer.run_name="gsm8k_0.5b_lora_grpo" \
+  trainer.project_name="lora" \
+  trainer.run_name="rank_1" \
   trainer.resume_mode=null \
   trainer.ckpt_path="$HOME/ckpts/gsm8k_0.5b_lora_ckpt" \
   $@

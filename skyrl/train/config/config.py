@@ -426,7 +426,7 @@ class AlgorithmConfig(BaseConfig):
     """Only used when ``use_kl_in_reward=True`` (not applied when ``use_kl_loss=True``).
     Uses ``kl_loss_coef`` as the initial KL coefficient."""
     kl_estimator_type: str = "k3"
-    """``"k1"``, ``"k2"``, ``"k3"``, ``"abs"``. See http://joschu.net/blog/kl-approx.html."""
+    """``"k1"``, ``"k2"``, ``"k3"``, ``"abs"``, ``"js"``. See http://joschu.net/blog/kl-approx.html."""
     use_kl_in_reward: bool = False
     """Apply KL penalty to rewards. Mutually exclusive with ``use_kl_loss``."""
     use_kl_loss: bool = True

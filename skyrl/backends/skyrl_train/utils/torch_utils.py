@@ -184,6 +184,27 @@ def masked_mean(tensor: torch.Tensor, mask: torch.Tensor | None, dim: int | None
     return (tensor * mask).sum(axis=dim) / mask.sum(axis=dim).clamp(min=1.0)
 
 
+def masked_row_quantile_mean(tensor: torch.Tensor, mask: torch.Tensor | None, quantile: float) -> torch.Tensor:
+    """Compute a row-wise masked quantile, then average over rows using the mask."""
+    # [batch_size, seqlen]
+    if tensor.ndim != 2:
+        raise ValueError(f"Expected a 2D tensor, got shape {tensor.shape}")
+
+    tensor = tensor.float()
+    if mask is None:
+        return torch.quantile(tensor, quantile, dim=-1).mean()
+
+    mask_bool = mask.bool()
+    if mask_bool.shape != tensor.shape:
+        raise ValueError(f"mask shape {mask_bool.shape} does not match tensor shape {tensor.shape}")
+
+    valid_rows = mask_bool.any(dim=-1)
+    masked_tensor = tensor.masked_fill(~mask_bool, torch.nan)
+    row_quantiles = torch.nanquantile(masked_tensor, quantile, dim=-1)
+    row_quantiles = torch.where(valid_rows, row_quantiles, torch.zeros_like(row_quantiles))
+    return row_quantiles.sum() / valid_rows.float().sum().clamp(min=1.0)
+
+
 def safe_exp_delta(delta: torch.Tensor, clip: float = 20.0, out_dtype=None) -> torch.Tensor:
     """
     Clamp the delta before exponentiating to avoid potential overflow.

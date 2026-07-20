@@ -6,6 +6,7 @@ import torch
 from skyrl.backends.skyrl_train.utils.torch_utils import (
     chunked_cross_entropy_from_log_probs,
     chunked_entropy_from_logits,
+    masked_row_quantile_mean,
 )
 
 
@@ -117,3 +118,29 @@ def test_chunked_entropy_from_logits_attention_mask_shape_validation():
     correct_mask = torch.ones(2, 3, dtype=torch.float32)
     result = chunked_entropy_from_logits(logits, attention_mask=correct_mask)
     assert result.shape == (2, 3)
+
+
+def test_masked_row_quantile_mean():
+    entropy = torch.tensor(
+        [
+            [1.0, 2.0, 3.0, 100.0],
+            [4.0, 5.0, 100.0, 100.0],
+            [100.0, 100.0, 100.0, 100.0],
+        ],
+        dtype=torch.float32,
+    )
+    mask = torch.tensor(
+        [
+            [1, 1, 1, 0],
+            [1, 1, 0, 0],
+            [0, 0, 0, 0],
+        ],
+        dtype=torch.float32,
+    )
+
+    result = masked_row_quantile_mean(entropy, mask, 0.9)
+
+    expected_row_0 = torch.quantile(torch.tensor([1.0, 2.0, 3.0]), 0.9)
+    expected_row_1 = torch.quantile(torch.tensor([4.0, 5.0]), 0.9)
+    expected = (expected_row_0 + expected_row_1) / 2
+    assert torch.allclose(result, expected)

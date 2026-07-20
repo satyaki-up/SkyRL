@@ -66,8 +66,14 @@ def test_compute_approx_kl(dummy_data):
     expected_k3 = (torch.exp(-log_ratio) - 1 + log_ratio) * mask
     assert torch.allclose(kl_k3, expected_k3, atol=1e-4), "k3 estimator is not correct"
 
+    js = compute_approx_kl(log_probs, log_probs_base, mask, kl_estimator_type="js")
+    log_m = torch.logaddexp(log_probs, log_probs_base) - math.log(2.0)
+    q_over_p = torch.exp(log_probs_base - log_probs)
+    expected_js = (0.5 * (log_probs - log_m) + 0.5 * q_over_p * (log_probs_base - log_m)) * mask
+    assert torch.allclose(js, expected_js, atol=1e-4), "js estimator is not correct"
 
-@pytest.mark.parametrize("kl_estimator_type", ["k1", "k2", "k3", "abs"])
+
+@pytest.mark.parametrize("kl_estimator_type", ["k1", "k2", "k3", "abs", "js"])
 def test_compute_approx_kl_applies_loss_mask(kl_estimator_type: str) -> None:
     """Scales kept positions; masked positions become 0.0, even when their inputs are nan/inf."""
     log_probs = torch.tensor([[0.2, 0.3, 0.5, 0.7]])

@@ -49,7 +49,7 @@ from skyrl.backends.skyrl_train.utils.ppo_utils import (
     compute_approx_kl,
     ppo_critic_loss,
 )
-from skyrl.backends.skyrl_train.utils.torch_utils import masked_mean
+from skyrl.backends.skyrl_train.utils.torch_utils import masked_mean, masked_row_quantile_mean
 from skyrl.backends.skyrl_train.workers.worker_utils import (
     BaseBatchIterator,
     BatchIterator,
@@ -941,6 +941,8 @@ class PolicyWorkerBase(Worker):
                 entropy_BS = output["entropy"]
                 entropy_BS = entropy_BS[:, -num_actions - 1 : -1]
                 entropy = masked_mean(entropy_BS, loss_mask)
+            with torch.no_grad():
+                avg_90p_entropy = masked_row_quantile_mean(entropy_BS, loss_mask, 0.9)
 
             if self.cfg.algorithm.use_entropy_loss:
                 entropy_loss_term = entropy * self.cfg.algorithm.entropy_loss_coef
@@ -995,6 +997,7 @@ class PolicyWorkerBase(Worker):
                 "final_loss": unscaled_loss.item(),
                 "policy_loss": policy_loss.item(),
                 "policy_entropy": entropy.item(),
+                "policy_avg_90p_entropy": avg_90p_entropy.item(),
                 "response_length": num_actions,
                 "policy_lr": self.scheduler.get_last_lr()[0],
                 "loss_fn_outputs": loss_fn_outputs,

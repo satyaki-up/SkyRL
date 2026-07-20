@@ -10,7 +10,7 @@ uv run -- python examples/gsm8k/gsm8k_dataset.py --output_dir $HOME/data/gsm8k
 
 export WANDB_API_KEY=<your_key_here>
 
-bash examples/async/async_run_gsm8k.sh
+bash examples/train/async/async_run_gsm8k.sh
 ```
 
 For more details, refer to the [documentation](https://docs.skyrl.ai/docs/tutorials/async)

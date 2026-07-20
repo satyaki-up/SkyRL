@@ -43,8 +43,8 @@ uv run --isolated --extra fsdp -m examples.train.async.main_async \
   generator.n_samples_per_prompt=5 \
   generator.inference_engine.gpu_memory_utilization=0.8 \
   trainer.logger="wandb" \
-  trainer.project_name="gsm8k-async" \
-  trainer.run_name="gsm8k_test_async" \
+  trainer.project_name="rl_replication" \
+  trainer.run_name="gsm8k_grpo_async" \
   trainer.resume_mode=null \
   trainer.ckpt_path="$HOME/ckpts/async_gsm8k_ckpt" \
   $@
